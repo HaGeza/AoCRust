@@ -1,5 +1,6 @@
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::BufRead;
+
+use y2023::get_reader;
 
 fn first_last_digit_combination(line: String) -> u32 {
     let mut first: u8 = 0;
@@ -27,11 +28,7 @@ fn first_last_digit_combination(line: String) -> u32 {
 }
 
 fn first_last_digit_combination_sums() -> Result<u32, std::io::Error> {
-    // Load data file
-    let fp = "data/d1/a.txt";
-    let file = File::open(fp)?;
-    let reader = BufReader::new(file);
-
+    let reader = get_reader("data/d1/a.txt")?;
     let mut sum = 0;
 
     for line in reader.lines() {
