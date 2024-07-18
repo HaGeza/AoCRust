@@ -1,9 +1,6 @@
-use std::{
-    cmp::{max, min},
-    io::BufRead,
-};
+use std::cmp::{max, min};
 
-use y2023::get_reader;
+use y2023::get_lines;
 
 fn process_buffer(num_buffer: &mut String, adjacent_to_symbol: bool) -> u32 {
     let result = if !num_buffer.is_empty() && adjacent_to_symbol {
@@ -16,12 +13,10 @@ fn process_buffer(num_buffer: &mut String, adjacent_to_symbol: bool) -> u32 {
 }
 
 fn schematic_number_sum(fp: &str) -> Result<u32, std::io::Error> {
-    let reader = get_reader(fp)?;
-
     let mut mat = vec![];
     let mut symbol_mat = vec![];
 
-    for (i, line) in reader.lines().enumerate() {
+    for (i, line) in get_lines(fp)?.enumerate() {
         let line = line?;
 
         mat.push(vec![]);

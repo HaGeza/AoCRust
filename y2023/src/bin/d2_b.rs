@@ -1,6 +1,4 @@
-use std::io::BufRead;
-
-use y2023::get_reader;
+use y2023::get_lines;
 
 fn bag_power(line: String) -> u32 {
     let Some((_, rest)) = line.split_once(":") else {
@@ -32,18 +30,17 @@ fn bag_power(line: String) -> u32 {
     max_r * max_b * max_g
 }
 
-fn bag_power_sum() -> Result<u32, std::io::Error> {
-    let reader = get_reader("data/d2/a.txt")?;
+fn bag_power_sum(fp: &str) -> Result<u32, std::io::Error> {
     let mut sum = 0;
 
-    for line in reader.lines() {
+    for line in get_lines(fp)? {
         sum += bag_power(line?);
     }
     Ok(sum)
 }
 
 fn main() {
-    match bag_power_sum() {
+    match bag_power_sum("data/d2/b.txt") {
         Ok(sum) => println!("Sum of bag powers: {}", sum),
         Err(e) => eprintln!("Error: {}", e),
     }

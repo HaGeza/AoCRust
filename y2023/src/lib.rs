@@ -1,6 +1,13 @@
-use std::{fs::File, io::BufReader};
+use std::{
+    fs::File,
+    io::{BufRead, BufReader, Lines},
+};
 
-pub fn get_reader(fp: &str) -> Result<BufReader<File>, std::io::Error> {
+pub fn get_lines(fp: &str) -> Result<Lines<BufReader<File>>, std::io::Error> {
     let file = File::open(fp)?;
-    Ok(BufReader::new(file))
+    Ok(BufReader::new(file).lines())
+}
+
+pub mod util {
+    pub mod d4;
 }

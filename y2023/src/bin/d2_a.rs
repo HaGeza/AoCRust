@@ -1,6 +1,4 @@
-use std::io::BufRead;
-
-use y2023::get_reader;
+use y2023::get_lines;
 
 fn id_if_valid_else_zero(line: String) -> u32 {
     let Some((id_part, rest)) = line.split_once(":") else {
@@ -40,18 +38,17 @@ fn id_if_valid_else_zero(line: String) -> u32 {
     return id;
 }
 
-fn sum_of_valid_ids() -> Result<u32, std::io::Error> {
-    let reader = get_reader("data/d2/a.txt")?;
+fn sum_of_valid_ids(fp: &str) -> Result<u32, std::io::Error> {
     let mut sum = 0;
 
-    for line in reader.lines() {
+    for line in get_lines(fp)? {
         sum += id_if_valid_else_zero(line?);
     }
     Ok(sum)
 }
 
 fn main() {
-    match sum_of_valid_ids() {
+    match sum_of_valid_ids("data/d2/a.txt") {
         Ok(sum) => println!("Sum of valid IDs: {}", sum),
         Err(e) => eprintln!("Error: {}", e),
     }

@@ -1,6 +1,4 @@
-use std::io::BufRead;
-
-use y2023::get_reader;
+use y2023::get_lines;
 
 fn first_last_digit_combination(line: String, word_to_digit: &[(&str, u8)]) -> u32 {
     let mut first: u8 = 0;
@@ -45,8 +43,7 @@ fn first_last_digit_combination(line: String, word_to_digit: &[(&str, u8)]) -> u
     return (first * 10 + last) as u32;
 }
 
-fn first_last_digit_combination_sums() -> Result<u32, std::io::Error> {
-    let reader = get_reader("data/d1/b.txt")?;
+fn first_last_digit_combination_sums(fp: &str) -> Result<u32, std::io::Error> {
     let word_to_digit = [
         ("one", 1),
         ("two", 2),
@@ -61,14 +58,14 @@ fn first_last_digit_combination_sums() -> Result<u32, std::io::Error> {
 
     let mut sum = 0;
 
-    for line in reader.lines() {
+    for line in get_lines(fp)? {
         sum += first_last_digit_combination(line?, &word_to_digit);
     }
     return Ok(sum);
 }
 
 fn main() {
-    match first_last_digit_combination_sums() {
+    match first_last_digit_combination_sums("data/d1/b.txt") {
         Ok(sum) => println!("{}", sum),
         Err(e) => eprintln!("Error: {}", e),
     }
