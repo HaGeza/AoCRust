@@ -10,4 +10,5 @@ pub fn get_lines(fp: &str) -> Result<Lines<BufReader<File>>, std::io::Error> {
 
 pub mod util {
     pub mod d4;
+    pub mod d5;
 }
