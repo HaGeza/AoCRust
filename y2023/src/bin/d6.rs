@@ -1,12 +1,11 @@
 use std::{
     cmp::{max, min},
-    env,
     fs::File,
     io::{BufReader, Lines},
 };
 
 use thiserror::Error;
-use y2023::get_lines;
+use y2023::{get_lines, get_subquestion_arg};
 
 #[derive(Error, Debug)]
 enum D6Error {
@@ -62,16 +61,7 @@ fn num_solutions_prod(fp: &str, merge_nums: bool) -> Result<u64, D6Error> {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    let input = if args.len() < 2 {
-        println!("No input provided, running for a");
-        "a"
-    } else {
-        args[1].as_str()
-    };
-
-    let merge_nums = match input {
+    let merge_nums = match get_subquestion_arg().as_str() {
         "a" => false,
         "b" => true,
         _ => {
