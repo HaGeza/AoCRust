@@ -19,6 +19,17 @@ pub enum Direction {
     W,
 }
 
+impl Direction {
+    pub fn opposite(&self) -> Self {
+        match self {
+            Direction::N => Direction::S,
+            Direction::E => Direction::W,
+            Direction::S => Direction::N,
+            Direction::W => Direction::E,
+        }
+    }
+}
+
 pub enum Cell {
     Empty,
     Start,
@@ -54,6 +65,7 @@ pub fn get_filled_matrix(fp: &str) -> Result<Vec<Vec<Cell>>, D10Error> {
     }
 
     let mut stack = VecDeque::new();
+    let mut start_directions = Vec::new();
     let n = matrix.len() as i32;
     let m = matrix[0].len() as i32;
 
@@ -71,11 +83,22 @@ pub fn get_filled_matrix(fp: &str) -> Result<Vec<Vec<Cell>>, D10Error> {
                 Cell::Pipe(d1, d2, None) => {
                     if *d1 == *d || *d2 == *d {
                         stack.push_front(((*i, *j), 1));
+                        start_directions.push(d.clone());
                     }
                 }
                 _ => continue,
             }
         }
+    }
+
+    if start_directions.len() != 2 {
+        return Err(D10Error::MatrixError);
+    } else {
+        matrix[si as usize][sj as usize] = Cell::Pipe(
+            start_directions[0].opposite(),
+            start_directions[1].opposite(),
+            Some(0),
+        );
     }
 
     while !stack.is_empty() {
