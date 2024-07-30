@@ -7,15 +7,16 @@ use y2023::{
 };
 
 fn num_arrangements_dp(springs: Vec<Spring>, nums: Vec<u32>) -> u64 {
-    let mut included_nums = vec![];
+    let mut endings = vec![];
     for num in nums {
-        for i in 0..=num {
-            included_nums.push(i);
+        endings.push(Broken);
+        for _ in 1..=num {
+            endings.push(Working);
         }
     }
-    included_nums.push(0);
+    endings.push(Broken);
 
-    let n = included_nums.len();
+    let n = endings.len();
     let m = springs.len();
     let mut dp = vec![vec![0; m]; n];
 
@@ -37,9 +38,13 @@ fn num_arrangements_dp(springs: Vec<Spring>, nums: Vec<u32>) -> u64 {
             // Not in the first column, but in the first row
             if i == 0 {
                 dp[i][j] = dp[i][j - 1] * broken as u64;
-            } else if included_nums[i] != 0 {
+            // Neither first row nor first column
+            } else if endings[i] == Working {
+                // If the current has to end in Working, it can only extend a sequence with one less Working
                 dp[i][j] = dp[i - 1][j - 1] * working as u64;
             } else {
+                // endings[i] == Broken
+                // If the current has to end in Broken, it can extend a sequence ending in Working or Broken
                 dp[i][j] = (dp[i - 1][j - 1] + dp[i][j - 1]) * broken as u64;
             }
         }
