@@ -1,13 +1,4 @@
-use thiserror::Error;
-use y2023::get_lines;
-
-#[derive(Debug, Error)]
-enum D13Error {
-    #[error("io error")]
-    Io(#[from] std::io::Error),
-    #[error("parse error")]
-    ParseInt(#[from] std::num::ParseIntError),
-}
+use y2023::util::d13::solve_d13;
 
 fn get_col_symmetries(matrix: &Vec<Vec<bool>>) -> Vec<Vec<bool>> {
     let n = matrix.len();
@@ -104,26 +95,8 @@ fn summarize_pattern(matrix: &Vec<Vec<bool>>) -> u64 {
     0
 }
 
-fn solve(fp: &str) -> Result<u64, D13Error> {
-    let mut sum = 0;
-
-    let mut matrix = vec![];
-    for line in get_lines(fp)? {
-        let line = line?;
-        if line.trim().is_empty() {
-            sum += summarize_pattern(&matrix);
-            matrix.clear();
-        } else {
-            matrix.push(line.chars().map(|c| c == '#').collect::<Vec<_>>());
-        }
-    }
-    sum += summarize_pattern(&matrix);
-
-    Ok(sum)
-}
-
 fn main() {
-    match solve("data/d13/a.txt") {
+    match solve_d13("data/d13/a.txt", summarize_pattern) {
         Ok(solution) => println!("{}", solution),
         Err(e) => eprintln!("Error: {}", e),
     }
