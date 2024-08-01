@@ -1,36 +1,10 @@
-use thiserror::Error;
-use y2023::get_lines;
-
-#[derive(Debug, Error)]
-enum D14Error {
-    #[error("io error")]
-    Io(#[from] std::io::Error),
-}
-
-#[derive(Debug, PartialEq, Eq)]
-enum Cell {
-    Empty,
-    Round,
-    Square,
-}
-use Cell::*;
+use y2023::util::d14::{get_grid, Cell::*, D14Error};
 
 fn solve(fp: &str) -> Result<u64, D14Error> {
-    let mut grid = vec![];
-
-    for (i, line) in get_lines(fp)?.enumerate() {
-        grid.push(vec![]);
-        for c in line?.chars() {
-            grid[i].push(match c {
-                'O' => Round,
-                '#' => Square,
-                _ => Empty,
-            });
-        }
-    }
-
+    let grid = get_grid(fp)?;
     let n = grid.len();
     let m = grid[0].len();
+
     let mut fall = vec![vec![0; m]; n];
 
     for i in 1..n {
@@ -47,7 +21,9 @@ fn solve(fp: &str) -> Result<u64, D14Error> {
     for i in 0..n {
         for j in 0..m {
             if grid[i][j] == Round {
-                sum += (n - i + fall[i][j]) as u64;
+                let what = n - i + fall[i][j];
+                let the = what as u64;
+                sum += the;
             }
         }
     }

@@ -24,6 +24,7 @@ pub mod util {
     pub mod d10;
     pub mod d12;
     pub mod d13;
+    pub mod d14;
     pub mod d4;
     pub mod d5;
     pub mod d7;
