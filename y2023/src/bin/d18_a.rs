@@ -1,15 +1,7 @@
-use thiserror::Error;
-use y2023::get_lines;
-
-#[derive(Debug, Error)]
-enum D18Error {
-    #[error("io error")]
-    Io(#[from] std::io::Error),
-    #[error("parse error")]
-    Parse(#[from] std::num::ParseIntError),
-    #[error("invalid input")]
-    InvalidInput,
-}
+use y2023::{
+    get_lines,
+    util::d18::{get_movement, parse_line, D18Error},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Cube {
@@ -19,31 +11,12 @@ enum Cube {
 }
 use Cube::*;
 
-fn get_movement(dir: char, dist: i32) -> Result<(i32, i32), D18Error> {
-    match dir {
-        'R' => Ok((0, dist)),
-        'D' => Ok((dist, 0)),
-        'L' => Ok((0, -dist)),
-        'U' => Ok((-dist, 0)),
-        _ => Err(D18Error::InvalidInput),
-    }
-}
-
 fn solve(fp: &str) -> Result<u64, D18Error> {
     let (mut x, mut y, mut min_x, mut max_x, mut min_y, mut max_y) = (0, 0, 0, 0, 0, 0);
     let mut steps = vec![];
 
     for line in get_lines(fp)? {
-        let line = line?;
-        let Some((dir, rest)) = line.split_once(' ') else {
-            return Err(D18Error::InvalidInput);
-        };
-        let Some((dist, col)) = rest.split_once(' ') else {
-            return Err(D18Error::InvalidInput);
-        };
-
-        let dir = dir.chars().next().unwrap();
-        let dist = dist.parse::<i32>()?;
+        let (dir, dist, col) = parse_line(&line?)?;
         steps.push((dir, dist, col.to_string()));
 
         let (dy, dx) = get_movement(dir, dist)?;
