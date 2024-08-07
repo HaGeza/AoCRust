@@ -20,6 +20,17 @@ pub fn get_subquestion_arg() -> String {
     }
 }
 
+pub fn gcd(a: u64, b: u64) -> u64 {
+    match b {
+        0 => a,
+        _ => gcd(b, a % b),
+    }
+}
+
+pub fn lcm(a: u64, b: u64) -> u64 {
+    a / gcd(a, b) * b
+}
+
 pub mod util {
     pub mod d10;
     pub mod d12;

@@ -10,7 +10,7 @@
 use std::collections::{HashMap, HashSet};
 
 use thiserror::Error;
-use y2023::get_lines;
+use y2023::{get_lines, get_subquestion_arg, lcm};
 
 #[derive(Debug, Error)]
 enum D20Error {
@@ -20,28 +20,25 @@ enum D20Error {
     InvalidLine,
     #[error("flipping non flip-flop")]
     FlippingNonFlipFlop,
+    #[error("Part 2 error: {0}")]
+    Part2Error(String),
 }
 
+#[derive(PartialEq, Eq)]
 enum Switch {
     FlipFlop(bool),
     Conjunction,
     Broadcaster,
 }
 
-// fn get_state(sequences: &HashMap<String, (Switch, Vec<String>)>) -> Vec<bool> {
-//     sequences
-//         .iter()
-//         .filter_map(|(_, (sw, _))| match sw {
-//             Switch::FlipFlop(on_off) => Some(*on_off),
-//             _ => None,
-//         })
-//         .collect()
-// }
-
-fn solve(fp: &str) -> Result<u64, D20Error> {
+// Solution to part 2 only works if the input of rx is a conjunction, and I am not sure why it works even in that case.
+// Multi-input flip-flop switches should behave erratically, messing up subsequent periodicity, but this does not seem to
+// be the case for some reason...
+fn solve(fp: &str, use_rx: bool) -> Result<u64, D20Error> {
     let mut sequences = HashMap::new();
     let mut conjunction_maps = HashMap::new();
 
+    // Get sequences
     for line in get_lines(fp)? {
         let line = line?;
         let Some((origin, targets)) = line.split_once(" -> ") else {
@@ -71,18 +68,52 @@ fn solve(fp: &str) -> Result<u64, D20Error> {
         sequences.insert(origin_string, (switch, targets));
     }
 
-    for (origin, (_sw, targets)) in &sequences {
+    // Create conjunction maps and find rx input for part 2 (it must be a conjunction)
+    let mut final_conj = None;
+    for (origin, (sw, targets)) in &sequences {
         for target in targets {
             if let Some(hm) = conjunction_maps.get_mut(target) {
                 hm.insert(origin.to_string(), false);
             }
+            if target == "rx" && use_rx {
+                if final_conj.is_some() {
+                    return Err(D20Error::Part2Error("'rx' has multiple inputs".to_string()));
+                }
+
+                if *sw == Switch::Conjunction {
+                    final_conj = Some(origin);
+                } else {
+                    return Err(D20Error::Part2Error(
+                        "'rx' input is not conjunction".to_string(),
+                    ));
+                }
+            }
         }
     }
 
-    // let mut states = vec![(get_state(&sequences), 0, 0)];
-    let (mut low, mut high) = (0, 0);
+    // Find final conjunction inputs for part 2
+    let mut final_conj_inputs = HashMap::new();
+    if use_rx {
+        let Some(rx_input) = final_conj else {
+            return Err(D20Error::Part2Error("'rx' has no inputs".to_string()));
+        };
+        for (origin, (_sw, targets)) in &sequences {
+            for target in targets {
+                if target == rx_input {
+                    final_conj_inputs.insert(origin.to_string(), None);
+                }
+            }
+        }
+    }
 
-    for _ in 0..1000 {
+    // Simulate
+    let (mut low, mut high) = (0, 0);
+    let mut ind = 0;
+
+    // Part 1: simulate 1000 steps
+    // Part 2: simulate until all conjunction inputs are found
+    while (!use_rx && ind < 1000) || (use_rx && final_conj_inputs.values().any(|v| v.is_none())) {
+        ind += 1;
         let mut step = vec![("broadcaster".to_string(), false)];
         while !step.is_empty() {
             let mut next_step = vec![];
@@ -122,6 +153,12 @@ fn solve(fp: &str) -> Result<u64, D20Error> {
                             hm.insert(origin.to_string(), next_pulse);
                         }
                     }
+                    if use_rx && next_pulse && final_conj_inputs.contains_key(&origin.to_string()) {
+                        let period = final_conj_inputs.get_mut(&origin.to_string()).unwrap();
+                        if period.is_none() {
+                            *period = Some(ind);
+                        }
+                    }
                 }
             }
 
@@ -137,12 +174,23 @@ fn solve(fp: &str) -> Result<u64, D20Error> {
         }
     }
 
-    println!("low: {}, high: {}", low, high);
-    Ok(low * high)
+    if !use_rx {
+        Ok(low * high)
+    } else {
+        Ok(final_conj_inputs
+            .values()
+            .fold(1, |acc, &x| lcm(acc, x.unwrap())))
+    }
 }
 
 fn main() {
-    match solve("data/d20/test_2.txt") {
+    let use_rx = match get_subquestion_arg().as_str() {
+        "a" => false,
+        "b" => true,
+        _ => panic!("Invalid subquestion"),
+    };
+
+    match solve("data/d20/a.txt", use_rx) {
         Ok(sol) => println!("{}", sol),
         Err(e) => println!("Error: {:?}", e),
     }

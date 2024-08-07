@@ -1,15 +1,7 @@
-use y2023::util::d8::{read_environment, steps_from_a_to_b, D8Error};
-
-fn gcd(a: u64, b: u64) -> u64 {
-    match b {
-        0 => a,
-        _ => gcd(b, a % b),
-    }
-}
-
-fn lcm(a: u64, b: u64) -> u64 {
-    a / gcd(a, b) * b
-}
+use y2023::{
+    lcm,
+    util::d8::{read_environment, steps_from_a_to_b, D8Error},
+};
 
 fn solve(fp: &str) -> Result<u64, D8Error> {
     let (moves, nodes) = read_environment(fp)?;
