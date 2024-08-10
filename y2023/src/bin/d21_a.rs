@@ -1,36 +1,9 @@
 use std::collections::HashSet;
 
-use thiserror::Error;
-use y2023::get_lines;
-
-#[derive(Debug, Error)]
-enum D21Error {
-    #[error("io error")]
-    Io(#[from] std::io::Error),
-    #[error("invalid character in input: {0}")]
-    InvalidInputChar(char),
-}
+use y2023::util::d21::{read_garden_matrix, D21Error};
 
 fn solve(fp: &str, steps: usize) -> Result<u64, D21Error> {
-    let mut walkable = vec![];
-    let mut start = (0, 0);
-
-    for line in get_lines(fp)? {
-        let mut new_row = vec![];
-        for c in line?.chars() {
-            let w = match c {
-                '.' => true,
-                'S' => {
-                    start = (walkable.len(), new_row.len());
-                    true
-                }
-                '#' => false,
-                _ => return Err(D21Error::InvalidInputChar(c)),
-            };
-            new_row.push(w);
-        }
-        walkable.push(new_row);
-    }
+    let (walkable, start) = read_garden_matrix(fp)?;
 
     let n = walkable.len();
     let m = walkable[0].len();
@@ -59,8 +32,10 @@ fn solve(fp: &str, steps: usize) -> Result<u64, D21Error> {
 }
 
 fn main() {
-    match solve("data/d21/test_1.txt", 3) {
-        Ok(sol) => println!("{}", sol),
-        Err(e) => eprintln!("{}", e),
+    for steps in 1..20 {
+        match solve("data/d21/test_2_large.txt", steps) {
+            Ok(sol) => println!("{}: {}", steps, sol),
+            Err(e) => eprintln!("{}", e),
+        }
     }
 }
