@@ -1,26 +1,4 @@
-use thiserror::Error;
-use y2023::get_lines;
-
-#[derive(Debug, Error)]
-enum D24Error {
-    #[error("io error")]
-    Io(#[from] std::io::Error),
-    #[error("invalid line: {0}")]
-    InvalidLine(String),
-    #[error("parse error")]
-    ParseError(#[from] std::num::ParseIntError),
-}
-
-fn str_to_triplet(s: &str) -> Result<[i64; 3], D24Error> {
-    let nums = s
-        .split(',')
-        .map(|x| x.trim().parse::<i64>())
-        .collect::<Result<Vec<i64>, _>>()?;
-    if nums.len() != 3 {
-        return Err(D24Error::InvalidLine(s.to_string()));
-    }
-    Ok([nums[0], nums[1], nums[2]])
-}
+use y2023::util::d24::{get_positions_and_velocities, D24Error};
 
 fn get_2d_line_equation(start: [i64; 3], velocity: [i64; 3]) -> (f64, f64) {
     let m = velocity[1] as f64 / velocity[0] as f64;
@@ -36,17 +14,7 @@ fn get_2d_delta(start: [i64; 3], velocity: [i64; 3], point: (f64, f64)) -> (f64,
 }
 
 fn solve(fp: &str, min_bound: f64, max_bound: f64) -> Result<u32, D24Error> {
-    let mut starts = vec![];
-    let mut velocities = vec![];
-
-    for line in get_lines(fp)? {
-        let line = line?;
-        let Some((pos_str, vel_str)) = line.split_once('@') else {
-            return Err(D24Error::InvalidLine(line));
-        };
-        starts.push(str_to_triplet(pos_str)?);
-        velocities.push(str_to_triplet(vel_str)?);
-    }
+    let (starts, velocities) = get_positions_and_velocities(fp)?;
 
     let mut intersections = 0;
     for i in 0..starts.len() - 1 {

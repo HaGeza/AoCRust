@@ -43,6 +43,7 @@ pub mod util {
     pub mod d21;
     pub mod d22;
     pub mod d23;
+    pub mod d24;
     pub mod d4;
     pub mod d5;
     pub mod d7;
