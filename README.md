@@ -3,6 +3,8 @@
 This repository contains solutions for [Advent of Code 2023](https://adventofcode.com/2023) written in Rust.
 The solutions were written during the summer of 2024.
 
+![thumbnail](https://github.com/HaGeza/AoCRust/blob/main/y2023/thumbnail.png?raw=true)
+
 ## Usage
 
 **The solutions require data to be stored under `y2023/data/d<day_number>` (see the relevant scripts for expected input)**.
